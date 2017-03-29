@@ -70,27 +70,28 @@ def writeMNIST(sc, input_images, input_labels, output, format, num_partitions):
         imageRDD.map(toCSV).saveAsTextFile(output_images)
         labelRDD.map(toCSV).saveAsTextFile(output_labels)
 
-        # else: # format == "tfr":
-        #   tfRDD = imageRDD.zip(labelRDD).map(lambda x: (bytearray(toTFExample(x[0], x[1])), None))
-        #   # requires: --jars tensorflow-hadoop-1.0-SNAPSHOT.jar
-        #   tfRDD.saveAsNewAPIHadoopFile(output, "org.tensorflow.hadoop.io.TFRecordFileOutputFormat",
-        #                               keyClass="org.apache.hadoop.io.BytesWritable",
-        #                               valueClass="org.apache.hadoop.io.NullWritable")
+    else: # format == "tfr":
+      tfRDD = imageRDD.zip(labelRDD).map(lambda x: (bytearray(toTFExample(x[0], x[1])), None))
+
+      # requires: --jars tensorflow-hadoop-1.0-SNAPSHOT.jar
+      tfRDD.saveAsNewAPIHadoopFile(output, "org.tensorflow.hadoop.io.TFRecordFileOutputFormat",
+                                  keyClass="org.apache.hadoop.io.BytesWritable",
+                                  valueClass="org.apache.hadoop.io.NullWritable")
 
     #  Note: this creates TFRecord files w/o requiring a custom Input/Output format
-    else:  # format == "tfr":
-        def writeTFRecords(index, iter):
-            output_path = "{0}/part-{1:05d}".format(output, index)
-            writer = tf.python_io.TFRecordWriter(output_path)
-
-            for example in iter:
-                writer.write(example)
-
-            return [output_path]
-
-        tfRDD = imageRDD.zip(labelRDD).map(lambda x: toTFExample(x[0], x[1]))
-
-        tfRDD.mapPartitionsWithIndex(writeTFRecords).collect()
+    # else:  # format == "tfr":
+    #     def writeTFRecords(index, iter):
+    #         output_path = "{0}/part-{1:05d}".format(output, index)
+    #         writer = tf.python_io.TFRecordWriter(output_path)
+    #
+    #         for example in iter:
+    #             writer.write(example)
+    #
+    #         return [output_path]
+    #
+    #     tfRDD = imageRDD.zip(labelRDD).map(lambda x: toTFExample(x[0], x[1]))
+    #
+    #     tfRDD.mapPartitionsWithIndex(writeTFRecords).collect()
 
 
 def readMNIST(sc, output, format):
