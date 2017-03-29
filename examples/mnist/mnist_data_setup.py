@@ -10,12 +10,13 @@ import numpy
 from tensorflow.contrib.learn.python.learn.datasets import mnist
 
 import tensorflow as tf
+import logging
 
 
 def toTFExample(image, label):
     """Serializes an image/label as a TFExample byte string"""
 
-    print("image: {0}".format(image.astype("int64")))
+    logging.info("image: {0}".format(image.astype("int64")))
 
     example = tf.train.Example(
         features=tf.train.Features(
@@ -76,8 +77,8 @@ def writeMNIST(sc, input_images, input_labels, output, format, num_partitions):
 
     else: # format == "tfr":
 
-      print("format: [" + format+ "]")
-      print("output: [" + output + "]")
+        logging.info("format: [" + format+ "]")
+        logging.info("output: [" + output + "]")
 
 
       tfRDD = imageRDD.zip(labelRDD).map(lambda x: (bytearray(toTFExample(x[0], x[1])), None))
