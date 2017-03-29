@@ -71,6 +71,11 @@ def writeMNIST(sc, input_images, input_labels, output, format, num_partitions):
         labelRDD.map(toCSV).saveAsTextFile(output_labels)
 
     else: # format == "tfr":
+
+      print("format: [" + format+ "]")
+      print("output: [" + output + "]")
+
+
       tfRDD = imageRDD.zip(labelRDD).map(lambda x: (bytearray(toTFExample(x[0], x[1])), None))
 
       # requires: --jars tensorflow-hadoop-1.0-SNAPSHOT.jar
