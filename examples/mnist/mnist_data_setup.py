@@ -14,6 +14,9 @@ import tensorflow as tf
 
 def toTFExample(image, label):
     """Serializes an image/label as a TFExample byte string"""
+
+    print("image: [" + image + "], label: [" + label + "]")
+
     example = tf.train.Example(
         features=tf.train.Features(
             feature={
