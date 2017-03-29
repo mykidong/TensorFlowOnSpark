@@ -6,11 +6,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import logging
+
 import numpy
 from tensorflow.contrib.learn.python.learn.datasets import mnist
 
 import tensorflow as tf
-import logging
 
 
 def toTFExample(image, label):
@@ -75,18 +76,17 @@ def writeMNIST(sc, input_images, input_labels, output, format, num_partitions):
         imageRDD.map(toCSV).saveAsTextFile(output_images)
         labelRDD.map(toCSV).saveAsTextFile(output_labels)
 
-    else: # format == "tfr":
+    else:  # format == "tfr":
 
-        logging.info("format: [" + format+ "]")
+        logging.info("format: [" + format + "]")
         logging.info("output: [" + output + "]")
+        
+        tfRDD = imageRDD.zip(labelRDD).map(lambda x: (bytearray(toTFExample(x[0], x[1])), None))
 
-
-      tfRDD = imageRDD.zip(labelRDD).map(lambda x: (bytearray(toTFExample(x[0], x[1])), None))
-
-      # requires: --jars tensorflow-hadoop-1.0-SNAPSHOT.jar
-      tfRDD.saveAsNewAPIHadoopFile(output, "org.tensorflow.hadoop.io.TFRecordFileOutputFormat",
-                                  keyClass="org.apache.hadoop.io.BytesWritable",
-                                  valueClass="org.apache.hadoop.io.NullWritable")
+        # requires: --jars tensorflow-hadoop-1.0-SNAPSHOT.jar
+        tfRDD.saveAsNewAPIHadoopFile(output, "org.tensorflow.hadoop.io.TFRecordFileOutputFormat",
+                                     keyClass="org.apache.hadoop.io.BytesWritable",
+                                     valueClass="org.apache.hadoop.io.NullWritable")
 
     #  Note: this creates TFRecord files w/o requiring a custom Input/Output format
     # else:  # format == "tfr":
