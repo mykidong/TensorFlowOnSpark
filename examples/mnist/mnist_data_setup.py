@@ -22,6 +22,9 @@ def toTFExample(image, label):
             }
         )
     )
+
+    print("toTFExample: " + example.SerializeToString())
+
     return example.SerializeToString()
 
 
